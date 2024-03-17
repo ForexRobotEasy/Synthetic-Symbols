@@ -1,0 +1,94 @@
+
+// Program: Synthetic Symbols
+// Developer: Forex Robot Easy Team
+// Developer's Site: forexroboteasy.com
+
+// This program allows traders to create custom synthetic symbols by combining terminal symbols or custom symbols using mathematical operations.
+
+// Include necessary libraries
+#include <Trade\Trade.mqh>
+#include <MqlRates.mqh>
+
+// Define the synthetic symbol class
+class CSyntheticSymbol
+{
+private:
+    string m_symbol; // Name of the synthetic symbol
+    string m_formula; // Formula for calculating the synthetic symbol
+    int m_digits; // Number of digits in the synthetic symbol
+    double m_scaleFactor; // Scaling factor for the synthetic symbol
+
+public:
+    // Constructor
+    CSyntheticSymbol(string symbol, string formula, int digits, double scaleFactor)
+    {
+        m_symbol = symbol;
+        m_formula = formula;
+        m_digits = digits;
+        m_scaleFactor = scaleFactor;
+    }
+
+    // Function to calculate the value of the synthetic symbol
+    double CalculateValue()
+    {
+        double value = 0.0;
+
+        // Perform the mathematical operations based on the formula
+        if (m_formula == 'addition')
+        {
+            value = SymbolInfoDouble(m_symbol, SYMBOL_BID) + SymbolInfoDouble(m_symbol, SYMBOL_ASK);
+        }
+        else if (m_formula == 'subtraction')
+        {
+            value = SymbolInfoDouble(m_symbol, SYMBOL_BID) - SymbolInfoDouble(m_symbol, SYMBOL_ASK);
+        }
+        else if (m_formula == 'multiplication')
+        {
+            value = SymbolInfoDouble(m_symbol, SYMBOL_BID) * SymbolInfoDouble(m_symbol, SYMBOL_ASK);
+        }
+        else if (m_formula == 'division')
+        {
+            double ask = SymbolInfoDouble(m_symbol, SYMBOL_ASK);
+            if (ask != 0)
+            {
+                value = SymbolInfoDouble(m_symbol, SYMBOL_BID) / ask;
+            }
+        }
+
+        // Apply scaling factor
+        value *= m_scaleFactor;
+
+        // Round the value to the specified number of digits
+        value = NormalizeDouble(value, m_digits);
+
+        return value;
+    }
+};
+
+// Function to create custom synthetic symbols
+void CreateSyntheticSymbols()
+{
+    // Define the synthetic symbols
+    CSyntheticSymbol syntheticSymbol1('SYMBOL1', 'addition', 5, 1.0);
+    CSyntheticSymbol syntheticSymbol2('SYMBOL2', 'subtraction', 5, 2.0);
+    CSyntheticSymbol syntheticSymbol3('SYMBOL3', 'multiplication', 5, 0.5);
+    CSyntheticSymbol syntheticSymbol4('SYMBOL4', 'division', 5, 1.0);
+
+    // Calculate the values of the synthetic symbols
+    double value1 = syntheticSymbol1.CalculateValue();
+    double value2 = syntheticSymbol2.CalculateValue();
+    double value3 = syntheticSymbol3.CalculateValue();
+    double value4 = syntheticSymbol4.CalculateValue();
+
+    // Print the values of the synthetic symbols
+    Print('Value of SYMBOL1:', value1);
+    Print('Value of SYMBOL2:', value2);
+    Print('Value of SYMBOL3:', value3);
+    Print('Value of SYMBOL4:', value4);
+}
+
+// Entry point of the program
+void OnStart()
+{
+    CreateSyntheticSymbols();
+}
